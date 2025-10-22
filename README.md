@@ -45,13 +45,13 @@ This allows you to set defaults for all programs (or all browsers) and if nothin
 
 
 
-**3. How to Set It Up**
+**Getting Started/Testing it out**
+
+To test the 8bitdo script out, download the folder and unzip it. Find the 8BitDo.ahk file and right click to edit, then open in an editor. This will show you some of my reccommended defaults. Even if you don't have a controller on hand, you can try using f1-f4 with the default mappings to test. Once you know the script can work and you'd like to make your own shortcuts:
 
 1.  Pick a key mapping style. Below are three options to start. Feel free to paste these over the ones in the class, or tweak and (or make your own).  
 
-2. Remap your controller as a keyboard (each gamepad uses a different method, but the 8BitDo has it's own app). Use your 8BitDo (or other controller) in keyboard mode and assign each button to a hotkey.  
-   You can use modifiers (Alt, Win, etc.), but be careful — for example, Alt+F4 will close programs. I try to stick with function keys or numpad keys to avoid conflicts.  
-
+2. Remap your controller as a keyboard (each gamepad uses a different method, but the 8BitDo has it's own app called 'Ultiate Controller Software' for it's 'k' or 'keyboard' mode). Use your 8BitDo (or other controller) in keyboard mode and assign each button to a hotkey. Update what you have mapped your remote to in the 8BitDoClass.ahk file. If you're stuck on knowing what keys to pick, see my three sets of reccommended below. Note that you can create custom maping, I would reccommend avoiding modifiers if possible (Alt, Win, etc.), but be careful — for example, Alt+F4 will close programs. I try to stick with function keys or numpad keys to avoid conflicts.  I typically recommend Option 1 for most people, unless you actively use f1-f4 in your workflow.
 
 **Option 1: Function Keys Only**  
 (Uses F13–F24 for buttons, F1–F4 for the D-pad)  
