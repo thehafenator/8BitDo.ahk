@@ -1,11 +1,59 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0 ;; Note - this file is meant to be a starting point of your 8bitdo or other controller shortcuts. Feel free to edit/delete as needed. Additional examples and Full readme and examples below
 
+; Required Dependencies:
+#Include 8BitDoClass.ahk ; Houses the logic for the 8bitdo class (_8). Feel Free to rename if you would like. I was originally wanting the class to just be '8', but classes can't begin with numbers. 
+
+; Recommended dependences - comment these lines if you do not need per-website shortcuts or window navigation shortcuts.
+#Include OnWebsite.ahk ; leave uncommented for website-specific support, though it does require OnWebsite.ahk (On class) and Descolada's UIA library
+#Include UIA\Lib\UIA.ahk
+#Include UIA\Lib\UIA_Browser.ahk
+#Include Monitor Manager.ahk
+
+; =========================================================
+; Reccommended GLOBAL DEFAULTS
+; =========================================================
+_8.home["global"] := (*) => SendInput("!{Tab}") ; switch between recent windows
+_8.start["global"] := (*) => Send("^z")         ; undo
+_8.up["global"] := (*) => Send("{Up down}") 
+_8.down["global"] := (*) => Send("{Down down}")
+
+; If arrow keys are mapped to F1-F4, this allows the monitor gestures to work: UL will close the window, UR will maximized if not maximized, and full screen if already maximized. DL will reverse UR, either going out of full screen if in full screen, or restoring the window. DL will minimize the program.
+~F1 & F4:: mm.GestureUL()
+~F4 & F1:: mm.GestureUL()
+~F2 & F3:: mm.GestureDR()
+~F3 & F2:: mm.GestureDR()
+~F3 & F4:: mm.GestureUR()
+~F4 & F3:: mm.GestureUR()
+~F2 & F1:: mm.GestureDL()
+~F1 & F2:: mm.GestureDL()
+
+
+; =========================================================
+; Reccommended WIN32 MENUS (ahk_class #32768) Defaults
+; =========================================================
+_8.left["ahk_class #32768"]  := (*) => Send("{Left}")
+_8.right["ahk_class #32768"] := (*) => Send("{Enter}")
+_8.up["ahk_class #32768"]    := (*) => Send("{Up}")
+_8.down["ahk_class #32768"]  := (*) => Send("{Down}")
+_8.start["ahk_class #32768"] := (*) => Send("{Escape}")
+
+_8.l2["ahk_class #32768"] := (*) => (ToolTip("<< Desktop Left"), Send("^#{Left}"), SetTimer(ToolTip, -1000))
+_8.r2["ahk_class #32768"] := (*) => (ToolTip("Desktop Right >>"), Send("^#{Right}"), SetTimer(ToolTip, -1000))
+
+; End of Recommeded settings - feel free to add more shortcuts below and/or change the ontes above to ones you prefer. 
+
+; your shortcuts here
+
+
+
+
+; FULL README and example HERE for ideas/syntax usage:
 /*
 
 8BitDo.ahk - Context Sensitive Hotkeys in AutoHotkey v2 for 8BitDo and Other Controllers
 =======================================================================================
 
-I use this class, _8, to more easily write hotkeys for my 8BitDo Controller.
+I use this _8 class, to more easily write hotkeys for my 8BitDo Controller.
 I wanted something that would let me write hotkeys for a given program, but also have "defaults" to fallback to so I didn’t need to rewrite the functions (like pressing up/down/left/right) everywhere. I also wanted different shortcuts depending on whether I pressed a key quickly or held it down.
 
 I knew about the built-in Joy mappings for Autohotkey and about simply mapping controller buttons to regular keys (like mapping a button in a manufacteror's app to F1, then writing F1:: as a hotkey trigger), but I wanted:
@@ -39,11 +87,11 @@ Context order - brief explanation how how the script determins priority:
 When a button is pressed, _8 checks contexts in order of specificity:
 
 1. Win32 Menus (ahk_class #32768) -> for right-click/context menus
-2. Application-specific (e.g. ahk_exe notepad.exe,)
-3. URL-specific (via OnWebsite.ahk — e.g. "youtube.com")
-4. Window Title matches (checks if the active window’s title contains the context string)
-5. Window Class matches (checks against the window’s class name)
-6. Default (no context) -> hotkeys defined without a context
+2. URL-specific (via OnWebsite.ahk — e.g. "youtube.com")
+3. Window Title matches (checks if the active window’s title contains the context string)
+4. Window Class matches (checks against the window’s class name)
+5. Window Exe checks(e.g. ahk_exe notepad.exe)
+6. Browsers (Will work in any browser)
 7. Global mappings -> last-resort fallback
 
 
@@ -125,23 +173,17 @@ Option 3: Numpad Keys
 
 A side note: I found it difficult to make the class flexible enough to have the hotkeys often changed, but allow combination buttons. I had a version that worked, but the deal-breaker I couldn't get past was not being able to press/hold buttons. (If anyone has ideas for that, I'm all ears. I could get the _8ab.[""] to dynamically assign _8ab, but with fat-arrow/lambda functions and logic of the detection pattern, they only executed after keys were pressed off.)
 
-That's why you'll see me keep F1-F4 as the "arrow" up/down/left/right keys - then it's pretty easy to press up/down together to mimic my mouse gesture shortcuts:
+I tried for a long time to do write this in _8 syntax for combination buttons, but I ran into problems (hotkeys not firing until released, couldn’t hold down a key and repeat), etc. 
+This is a fairly easy alternative and only for four keys. It calls into my MonitorManager class if you're interested https://github.com/thehafenator/monitor-manager. I also use it with my Mouse Gesture Scripts https://github.com/thehafenator/MouseGestures
 
-Up + Left - Close Window                                      Up + Right = maximize window (or full screen if maximized)
-Down + Left - Get out of full screen/Restore window           Down + Right - Minimize window
-
-But write that as this outside of the functions.
-Here is my monitor manager class::https://github.com/thehafenator/monitor-manager 
-~F1 & F4::mm.GestureUL() 
-~F4 & F1::mm.GestureUL()
-~F3 & F4::mm.GestureUR() 
-~F4 & F3::mm.GestureUR() 
-~F2 & F1::mm.GestureDL()
-~F1 & F2::mm.GestureDL()
-~F2 & F3::mm.GestureDR()
-~F3 & F2::mm.GestureDR()
-
-
+    ~F1 & F4::mm.GestureUL()
+    ~F4 & F1::mm.GestureUL()
+    ~F3 & F4::mm.GestureUR()
+    ~F4 & F3::mm.GestureUR()
+    ~F2 & F1::mm.GestureDL()
+    ~F1 & F2::mm.GestureDL()
+    ~F2 & F3::mm.GestureDR()
+    ~F3 & F2::mm.GestureDR()
 
 Sample Defaults:
 ---------------
@@ -190,19 +232,7 @@ call the menu, then circle through and select using the controller.
     _8.selectH["ahk_class #32768"] := (*) => Send("t")
     _8.start["ahk_class #32768"] := (*) => Send("{Escape}")
 
-Function key combos for Monitor Manager:
-I use just Fn keys here — this lets me maximize or fullscreen programs in specific quadrants of the screen.
-I tried for a long time to do write this in _8 syntax for combination buttons, but I ran into problems (hotkeys not firing until released, couldn’t hold down a key and repeat), etc. 
-This is a fairly easy alternative and only for four keys. It calls into my MonitorManager class if you're interested https://github.com/thehafenator/monitor-manager. I also use it with my Mouse Gesture Scripts https://github.com/thehafenator/MouseGestures
 
-    ~F1 & F4::mm.GestureUL()
-    ~F4 & F1::mm.GestureUL()
-    ~F3 & F4::mm.GestureUR()
-    ~F4 & F3::mm.GestureUR()
-    ~F2 & F1::mm.GestureDL()
-    ~F1 & F2::mm.GestureDL()
-    ~F2 & F3::mm.GestureDR()
-    ~F3 & F2::mm.GestureDR()
 
 Example of a specific program: Spotify
 
@@ -241,291 +271,7 @@ Uses the Video Speed Controller chrome extension (with w, e, and r set to decrea
 */
 
 
-#Requires AutoHotkey v2.0
-class _8 { ; version 08.013.2025
-    static hotkeys := Map()
 
-    static browsers := [
-        "ahk_class Chrome_WidgetWin_1 ahk_exe chrome.exe",
-        "ahk_class ApplicationFrameWindow ahk_exe msedge.exe", 
-        "ahk_class MozillaWindowClass ahk_exe firefox.exe",
-        "ahk_class Chrome_WidgetWin_1 ahk_exe thorium.exe",
-        "ahk_class Chrome_WidgetWin_1 ahk_exe floorp.exe"
-    ]
-
-    static keyMap := Map( ; see others in readme file
-        "a", "F13",
-        "b", "F14",
-        "x", "F15",
-        "y", "F16",
-        "l", "F17",
-        "r", "F18",
-        "l2", "F19",
-        "r2", "F20",
-        "select", "F21",
-        "start", "F22",
-        "star", "F23",
-        "home", "F24",
-        "left", "F1",
-        "down", "F2",
-        "right", "F3",
-        "up", "F4"
-    )
-
-    static __New() {
-        this.CreateDynamicProperties()
-    }
-
-    static CreateDynamicProperties() {
-        for button in this.keyMap {
-            this.CreateButtonProperty(button, false)
-        }
-        for button in this.keyMap {
-            this.CreateButtonProperty(button, true)
-        }
-    }
-
-    static CreateButtonProperty(buttonName, isHold) {
-        propName := isHold ? buttonName . "H" : buttonName
-        capturedButton := buttonName
-        capturedIsHold := isHold
-        this.DefineProp(propName, {
-            set: (this, value, contexts*) => 
-                capturedIsHold ? 
-                    this.SetupHoldHotkey(capturedButton, contexts, value) : 
-                    this.SetupHotkey(capturedButton, contexts, value)
-        })
-    }
-
-    static SetupHotkey(button, contexts, callback) {
-        hotkeyName := this.keyMap[button]
-        hotkeyId := hotkeyName
-        if (!this.hotkeys.Has(hotkeyId)) {
-            this.hotkeys[hotkeyId] := Map()
-        }
-        if (contexts.Length == 0) {
-            this.hotkeys[hotkeyId]["|"] := {context: "", callback: callback}
-        } else {
-            for context in contexts {
-                context := Trim(context)
-                this.hotkeys[hotkeyId][context . "|"] := {context: context, callback: callback}
-            }
-        }
-        this.RegisterHotkeyWrapper(hotkeyName, button, false)
-    }
-    
-    static SetupHoldHotkey(button, contexts, callback) {
-        hotkeyName := this.keyMap[button]
-        hotkeyId := hotkeyName . "_hold"
-        if (!this.hotkeys.Has(hotkeyId)) {
-            this.hotkeys[hotkeyId] := Map()
-        }
-        if (contexts.Length == 0) {
-            this.hotkeys[hotkeyId]["|"] := {context: "", callback: callback}
-        } else {
-            for context in contexts {
-                context := Trim(context)
-                this.hotkeys[hotkeyId][context . "|"] := {context: context, callback: callback}
-            }
-        }
-        this.RegisterHotkeyWrapper(hotkeyName, button, true)
-    }
-
-static RegisterHotkeyWrapper(hotkeyName, button, isHold) {
-    wrapperFunc(thisHotkey) {
-        currentUrl := ""
-        if IsSet(On) {
-            try {
-                currentUrl := On.LastResult.url ? On.LastResult.url : ""
-            } catch {
-            }
-        }
-        hasContextMenu := false
-        try {
-            hasContextMenu := WinExist("ahk_class #32768")
-        }
-        activeWin := ""
-        activeClass := ""
-        activeExe := ""
-        try {
-            activeWin := WinGetTitle("A")
-            activeClass := WinGetClass("A")
-            activeExe := WinGetProcessName("A")
-        }
-        regularHotkeyId := _8.keyMap[button]
-        holdHotkeyId := regularHotkeyId . "_hold"
-        regularCallback := ""
-        holdCallback := ""
-        globalRegularCallback := ""
-        globalHoldCallback := ""
-        
-        if (_8.hotkeys.Has(regularHotkeyId) && _8.hotkeys[regularHotkeyId].Has("global|")) {
-            globalRegularCallback := _8.hotkeys[regularHotkeyId]["global|"].callback
-        }
-        if (_8.hotkeys.Has(holdHotkeyId) && _8.hotkeys[holdHotkeyId].Has("global|")) {
-            globalHoldCallback := _8.hotkeys[holdHotkeyId]["global|"].callback
-        }
-        
-        if (hasContextMenu) {
-            if (_8.hotkeys.Has(regularHotkeyId)) {
-                for key, entry in _8.hotkeys[regularHotkeyId] {
-                    if (entry.context == "#32768" || entry.context == "ahk_class #32768") {
-                        regularCallback := entry.callback
-                        break
-                    }
-                }
-            }
-            if (_8.hotkeys.Has(holdHotkeyId)) {
-                for key, entry in _8.hotkeys[holdHotkeyId] {
-                    if (entry.context == "#32768" || entry.context == "ahk_class #32768") {
-                        holdCallback := entry.callback
-                        break
-                    }
-                }
-            }
-        }
-        
-        ContextMatches(context) {
-            if (context == "" || context == "global")
-                return false
-            
-            ; Updated browser detection - use combined class+exe criteria like _MG class
-            isBrowserActive := false
-            for criteria in _8.browsers {
-                if (WinActive(criteria)) {
-                    isBrowserActive := true
-                    break
-                }
-            }
-            
-            if (isBrowserActive && currentUrl != "" && InStr(currentUrl, context))
-                return true
-            return ((activeWin != "" && InStr(activeWin, context)) || 
-                    (activeClass != "" && InStr(activeClass, context)) || 
-                    (activeExe != "" && InStr(activeExe, context)) || 
-                    WinActive(context))
-        }
-        
-        ; Helper function to determine context specificity
-        GetContextSpecificity(context) {
-            ; URL contexts (most specific)
-            if (InStr(context, ".com") || InStr(context, ".org") || InStr(context, ".net") || 
-                InStr(context, ".edu") || InStr(context, ".gov") || InStr(context, "://"))
-                return 3
-            ; Executable contexts  
-            if (InStr(context, ".exe"))
-                return 1
-            ; Window/class contexts
-            return 2
-        }
-        
-        ; Sort contexts by specificity
-        SortContextsBySpecificity(contextArray) {
-            ; Simple bubble sort by specificity (URL > Window > Exe)
-            n := contextArray.Length
-            Loop n-1 {
-                i := A_Index
-                Loop n-i {
-                    j := A_Index
-                    if (GetContextSpecificity(contextArray[j].context) < GetContextSpecificity(contextArray[j+1].context)) {
-                        ; Swap
-                        temp := contextArray[j]
-                        contextArray[j] := contextArray[j+1]
-                        contextArray[j+1] := temp
-                    }
-                }
-            }
-            return contextArray
-        }
-        
-        if (regularCallback == "" && holdCallback == "") {
-            ; Collect matching regular contexts
-            regularMatches := []
-            if (_8.hotkeys.Has(regularHotkeyId)) {
-                for key, entry in _8.hotkeys[regularHotkeyId] {
-                    if (entry.context != "" && ContextMatches(entry.context)) {
-                        regularMatches.Push(entry)
-                    }
-                }
-            }
-            
-            ; Collect matching hold contexts  
-            holdMatches := []
-            if (_8.hotkeys.Has(holdHotkeyId)) {
-                for key, entry in _8.hotkeys[holdHotkeyId] {
-                    if (entry.context != "" && ContextMatches(entry.context)) {
-                        holdMatches.Push(entry)
-                    }
-                }
-            }
-            
-            ; Sort by specificity and take most specific match
-            if (regularMatches.Length > 0) {
-                regularMatches := SortContextsBySpecificity(regularMatches)
-                regularCallback := regularMatches[1].callback
-            }
-            if (holdMatches.Length > 0) {
-                holdMatches := SortContextsBySpecificity(holdMatches)
-                holdCallback := holdMatches[1].callback
-            }
-            
-            ; Fall back to default callbacks
-            if (regularCallback == "" && _8.hotkeys.Has(regularHotkeyId) && _8.hotkeys[regularHotkeyId].Has("|")) {
-                regularCallback := _8.hotkeys[regularHotkeyId]["|"].callback
-            }
-            if (holdCallback == "" && _8.hotkeys.Has(holdHotkeyId) && _8.hotkeys[holdHotkeyId].Has("|")) {
-                holdCallback := _8.hotkeys[holdHotkeyId]["|"].callback
-            }
-            
-            ; Fall back to global callbacks
-            if (regularCallback == "" && globalRegularCallback != "") {
-                regularCallback := globalRegularCallback
-            }
-            if (holdCallback == "" && globalHoldCallback != "") {
-                holdCallback := globalHoldCallback
-            }
-        }
-        
-        ; Execute based on what we have
-        if (regularCallback != "" && holdCallback != "") {
-            ; We have both - use press/hold detection
-            _8.HandlePressOrHold(hotkeyName, regularCallback, holdCallback)
-        } else if (regularCallback != "") {
-            ; Only regular callback - execute immediately
-            regularCallback()
-        } else if (holdCallback != "") {
-            ; Only hold callback - require actual hold
-            _8.HandlePressOrHold(hotkeyName, "", holdCallback)
-        }
-    }
-    registryKey := button . "_registered"
-    if (!this.hotkeys.Has(registryKey)) {
-        try {
-            Hotkey(hotkeyName, , "Off")
-        }
-        try {
-            Hotkey(hotkeyName, wrapperFunc, "On")
-            this.hotkeys[registryKey] := true
-        }
-    }
-}
-    
-static HandlePressOrHold(key, pressCallback, holdCallback, holdTime := 0.2) {
-   keyName := RegExReplace(key, "[\^!+#]+", "")
-    
-    if (pressCallback == "" && holdCallback == "") {
-        return
-    }
-    if (!KeyWait(keyName, "T" holdTime)) {
-        if (holdCallback != "") {
-            holdCallback()
-        }
-    } else if (pressCallback != "") {
-        pressCallback()
-    }
-    KeyWait(keyName)
-}
-}
 
 
 
